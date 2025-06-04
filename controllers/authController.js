@@ -7,7 +7,7 @@ const generateToken = (user) =>
     jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
 exports.register = async (req, res) => {
-    const { email, password, name } = req.body;
+    const { email, password } = req.body;
 
     try {
         if (await User.findOne({ email })) {
@@ -18,13 +18,11 @@ exports.register = async (req, res) => {
         const user = await User.create({
             email,
             password: hashedPassword,
-            name,
         });
 
-        const token = generateToken(user);
         res.status(201).json({
-            token,
-            user: { id: user._id, email: user.email },
+            user: { id: user._id, email: user.email, verified: user.verified },
+            message: 'OTP sent to email',
         });
     } catch {
         res.status(500).json({ message: 'Server error' });
