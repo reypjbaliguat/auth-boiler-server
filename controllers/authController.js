@@ -11,7 +11,7 @@ exports.register = async (req, res) => {
 
     try {
         if (await User.findOne({ email })) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).send({ message: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -20,12 +20,12 @@ exports.register = async (req, res) => {
             password: hashedPassword,
         });
 
-        res.status(201).json({
+        res.status(201).send({
             user: { id: user._id, email: user.email, verified: user.verified },
             message: 'OTP sent to email',
         });
     } catch {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).send({ message: 'Server error' });
     }
 };
 
@@ -35,13 +35,13 @@ exports.login = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(400).send({ message: 'Invalid credentials' });
         }
 
         const token = generateToken(user);
-        res.json({ token, user: { id: user._id, email: user.email } });
+        res.send({ token, user: { id: user._id, email: user.email } });
     } catch {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).send({ message: 'Server error' });
     }
 };
 
@@ -51,7 +51,7 @@ exports.googleLogin = async (req, res) => {
     try {
         const payload = await verifyGoogleToken(credential);
         const { email, name, sub: googleId } = payload;
-
+        console.log(payload);
         let user = await User.findOne({ email });
         if (!user) {
             user = await User.create({
@@ -63,8 +63,8 @@ exports.googleLogin = async (req, res) => {
         }
 
         const token = generateToken(user);
-        res.json({ token, user: { id: user._id, email: user.email } });
+        res.send({ token, user: { id: user._id, email: user.email } });
     } catch {
-        res.status(400).json({ message: 'Invalid Google token' });
+        res.status(400).send({ message: 'Invalid Google token' });
     }
 };
