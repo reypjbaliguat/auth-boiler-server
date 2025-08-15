@@ -5,9 +5,11 @@ const {
     register,
     login,
     googleLogin,
+    verifyOtp,
 } = require('../controllers/authController');
 
 router.post('/register', register);
+router.post('/verify-otp', verifyOtp);
 router.post('/login', login);
 router.post('/google', googleLogin);
 router.get('/me', auth, (req, res) => {
